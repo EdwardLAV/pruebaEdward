@@ -2,38 +2,66 @@
 
 namespace app\controllers;
 
-use yii\rest\ActiveController;
+use Yii;
+use yii\rest\Controller;
 use app\models\Categoria;
+use yii\web\Response;
 
-class CategoriaController extends ActiveController
+class CategoriaController extends Controller
 {
-    public $modelClass = 'app\models\Categoria';
-
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-        // Habilitar formato JSON
-        $behaviors['contentNegotiator']['formats']['text/html'] = \yii\web\Response::FORMAT_JSON;
+        $behaviors['contentNegotiator']['formats']['application/json'] = Response::FORMAT_JSON;
+
         return $behaviors;
     }
 
-    // Endpoint personalizado para actualizar solo el estado
+    /** GET /categorias */
+    public function actionIndex()
+    {
+        return Categoria::find()->all();
+    }
+
+    /** GET /categorias/{id} */
+    public function actionView($id)
+    {
+        return Categoria::findOne($id);
+    }
+
+    /** POST /categorias */
+    public function actionCreate()
+    {
+        $model = new Categoria();
+        $model->load(Yii::$app->request->post(), '');
+        
+        if ($model->save()) {
+            return ['success' => true, 'data' => $model];
+        }
+
+        return ['success' => false, 'errors' => $model->errors];
+    }
+
+    /** PUT /categorias/{id} */
+    public function actionUpdate($id)
+    {
+        $model = Categoria::findOne($id);
+        $model->load(Yii::$app->request->post(), '');
+
+        if ($model->save()) {
+            return ['success' => true, 'data' => $model];
+        }
+
+        return ['success' => false, 'errors' => $model->errors];
+    }
+
+    /** PATCH /categorias/{id}/estado */
     public function actionEstado($id)
     {
         $model = Categoria::findOne($id);
+        $model->estado = !$model->estado;
+        $model->save(false);
 
-        if (!$model) {
-            return [
-                'success' => false,
-                'message' => 'Categoría no encontrada',
-            ];
-        }
-
-        $estado = \Yii::$app->request->post('estado');
-
-        $model->estado = $estado;
-        return $model->save()
-            ? ['success' => true, 'message' => 'Estado actualizado']
-            : ['success' => false, 'message' => 'Error al actualizar estado'];
+        return ['success' => true, 'nuevo_estado' => $model->estado];
     }
 }
