@@ -51,6 +51,7 @@ $config = [
         ],
         'jwt' => [
             'class' => 'app\components\JwtAuth',
+            'key' => '3f8d92hAj92kLm92nWq8273sjf82nLQp'
         ],
     ],
     'controllerMap' => [
