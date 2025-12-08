@@ -86,11 +86,22 @@ class Usuario extends ActiveRecord implements IdentityInterface
         return true;
     }
 
-    /**
-     * Validar contraseña en texto plano
-     */
+   public function beforeSave($insert)
+    {
+        if (parent::beforeSave($insert)) {
+
+            // Si la contraseña fue modificada, se vuelve a hashear
+            if ($this->isAttributeChanged('contrasena')) {
+                $this->contrasena = hash('sha256', $this->contrasena);
+            }
+
+            return true;
+        }
+        return false;
+    }
+
     public function validatePassword($password)
     {
-        return $password === $this->contrasena;
+        return hash('sha256', $password) === $this->contrasena;
     }
 }
