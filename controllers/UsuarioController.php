@@ -3,70 +3,43 @@
 namespace app\controllers;
 
 use Yii;
-use yii\rest\Controller;
+use yii\rest\ActiveController;
 use yii\web\Response;
-use app\components\JwtAuth;
-use app\models\Usuario;
+use yii\filters\Cors;
 
-class UsuarioController extends Controller
+class UsuarioController extends ActiveController
 {
+    public $modelClass = 'app\models\Usuario';
+
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-        $behaviors['authenticator'] = [
-            'class' => JwtAuth::class,
-            'except' => [], // TODAS las rutas requieren token
+
+        // Respuesta JSON
+        $behaviors['contentNegotiator']['formats'] = [
+            'application/json' => Response::FORMAT_JSON,
         ];
-        $behaviors['contentNegotiator']['formats']['application/json'] = Response::FORMAT_JSON;
+
+        // CORS (para permitir frontend)
+        $behaviors['corsFilter'] = [
+            'class' => Cors::class,
+        ];
 
         return $behaviors;
     }
 
-    /** GET /usuarios */
-    public function actionIndex()
-    {
-        return Usuario::find()->all();
-    }
-
-    /** GET /usuarios/{id} */
-    public function actionView($id)
-    {
-        return Usuario::findOne($id);
-    }
-
-    /** POST /usuarios */
-    public function actionCreate()
-    {
-        $model = new Usuario();
-        $model->load(Yii::$app->request->post(), '');
-
-        if ($model->save()) {
-            return ['success' => true, 'data' => $model];
-        }
-
-        return ['success' => false, 'errors' => $model->errors];
-    }
-
-    /** PUT /usuarios/{id} */
-    public function actionUpdate($id)
-    {
-        $model = Usuario::findOne($id);
-        $model->load(Yii::$app->request->post(), '');
-
-        if ($model->save()) {
-            return ['success' => true, 'data' => $model];
-        }
-
-        return ['success' => false, 'errors' => $model->errors];
-    }
-
-    /** PATCH /usuarios/{id}/estado */
+    // Cambiar estado (activar/desactivar)
     public function actionEstado($id)
     {
-        $model = Usuario::findOne($id);
-        $model->estado = !$model->estado;
-        $model->save(false);
+        $usuario = ($this->modelClass)::findOne($id);
 
-        return ['success' => true, 'nuevo_estado' => $model->estado];
+        if (!$usuario) {
+            return ['error' => 'Usuario no encontrado'];
+        }
+
+        $usuario->estado = !$usuario->estado;
+        $usuario->save(false);
+
+        return ['status' => 'ok', 'nuevo_estado' => $usuario->estado];
     }
 }

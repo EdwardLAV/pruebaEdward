@@ -4,63 +4,59 @@ namespace app\controllers;
 
 use Yii;
 use yii\rest\Controller;
-use yii\web\Response;
-use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
 use app\models\Usuario;
+use app\components\JwtAuth;
+use yii\web\Response;
 
 class LoginController extends Controller
 {
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-        // El login NO necesita autenticación
-        unset($behaviors['authenticator']);
-        
-        $behaviors['contentNegotiator']['formats']['application/json'] = Response::FORMAT_JSON;
+
+        // Respuesta siempre JSON
+        $behaviors['contentNegotiator']['formats'] = [
+            'application/json' => Response::FORMAT_JSON,
+        ];
+
         return $behaviors;
     }
 
-    /** POST /login */
     public function actionIndex()
     {
-        $body = Yii::$app->request->post();
-        $correo = $body['correo'] ?? null;
-        $password = $body['contrasena'] ?? null;
+        $request = Yii::$app->request;
+        $correo = $request->post('correo');
+        $password = $request->post('contrasena');
 
-        // Buscar usuario
-        $user = Usuario::findOne(['correo' => $correo]);
-
-        if (!$user) {
-            return ['success' => false, 'message' => 'Usuario no encontrado'];
+        if (!$correo || !$password) {
+            return ['error' => 'Correo y contraseña son obligatorios.'];
         }
 
-        // Validar contraseña SHA256
-        if ($user->contrasena !== hash('sha256', $password)) {
-            return ['success' => false, 'message' => 'Contraseña incorrecta'];
+        $usuario = Usuario::findOne(['correo' => $correo, 'estado' => true]);
+
+        if (!$usuario) {
+            return ['error' => 'Usuario no encontrado o inactivo.'];
         }
 
-        // Crear Token JWT
-        $key = Yii::$app->params['jwtSecret'];
-        $expire = time() + Yii::$app->params['jwtExpire'];
+        // Hash SHA256
+        if (!$usuario->validatePassword($password)) {
+            return ['error' => 'Contraseña incorrecta'];
+        }
 
-        $payload = [
-            'iss' => 'yii2-api',
-            'aud' => 'yii2-users',
-            'iat' => time(),
-            'exp' => $expire,
-            'data' => [
-                'id' => $user->id,
-                'correo' => $user->correo,
-            ]
-        ];
-
-        $jwt = JWT::encode($payload, $key, 'HS256');
+        // Generar token
+        $jwt = JwtAuth::generarToken([
+            'id' => $usuario->id,
+            'correo' => $usuario->correo,
+            'nombre' => $usuario->nombre,
+        ]);
 
         return [
-            'success' => true,
             'token' => $jwt,
-            'expires_in' => Yii::$app->params['jwtExpire']
+            'usuario' => [
+                'id' => $usuario->id,
+                'nombre' => $usuario->nombre,
+                'correo' => $usuario->correo
+            ]
         ];
     }
 }

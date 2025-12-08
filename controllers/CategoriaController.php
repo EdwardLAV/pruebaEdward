@@ -3,70 +3,43 @@
 namespace app\controllers;
 
 use Yii;
-use yii\rest\Controller;
-use app\models\Categoria;
-use app\components\JwtAuth;
+use yii\rest\ActiveController;
 use yii\web\Response;
+use yii\filters\Cors;
 
-class CategoriaController extends Controller
+class CategoriaController extends ActiveController
 {
+    public $modelClass = 'app\models\Categoria';
+
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-        $behaviors['authenticator'] = [
-            'class' => JwtAuth::class,
-            'except' => [], // TODAS las rutas requieren token
+
+        // Respuesta JSON
+        $behaviors['contentNegotiator']['formats'] = [
+            'application/json' => Response::FORMAT_JSON,
         ];
-        $behaviors['contentNegotiator']['formats']['application/json'] = Response::FORMAT_JSON;
+
+        // CORS
+        $behaviors['corsFilter'] = [
+            'class' => Cors::class,
+        ];
 
         return $behaviors;
     }
 
-    /** GET /categorias */
-    public function actionIndex()
-    {
-        return Categoria::find()->all();
-    }
-
-    /** GET /categorias/{id} */
-    public function actionView($id)
-    {
-        return Categoria::findOne($id);
-    }
-
-    /** POST /categorias */
-    public function actionCreate()
-    {
-        $model = new Categoria();
-        $model->load(Yii::$app->request->post(), '');
-        
-        if ($model->save()) {
-            return ['success' => true, 'data' => $model];
-        }
-
-        return ['success' => false, 'errors' => $model->errors];
-    }
-
-    /** PUT /categorias/{id} */
-    public function actionUpdate($id)
-    {
-        $model = Categoria::findOne($id);
-        $model->load(Yii::$app->request->post(), '');
-
-        if ($model->save()) {
-            return ['success' => true, 'data' => $model];
-        }
-
-        return ['success' => false, 'errors' => $model->errors];
-    }
-
-    /** PATCH /categorias/{id}/estado */
+    // Activar / desactivar
     public function actionEstado($id)
     {
-        $model = Categoria::findOne($id);
-        $model->estado = !$model->estado;
-        $model->save(false);
+        $categoria = ($this->modelClass)::findOne($id);
 
-        return ['success' => true, 'nuevo_estado' => $model->estado];
+        if (!$categoria) {
+            return ['error' => 'Categoría no encontrada'];
+        }
+
+        $categoria->estado = !$categoria->estado;
+        $categoria->save(false);
+
+        return ['status' => 'ok', 'nuevo_estado' => $categoria->estado];
     }
 }
