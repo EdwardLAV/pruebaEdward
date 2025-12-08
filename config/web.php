@@ -49,6 +49,9 @@ $config = [
             'rules' => [
             ],
         ],
+        'jwt' => [
+            'class' => 'app\components\JwtAuth',
+        ],
     ],
     'controllerMap' => [
         'categorias' => 'app\controllers\CategoriaController',
