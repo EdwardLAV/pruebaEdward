@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use Yii;
+use app\components\JwtAuth;
 use yii\rest\ActiveController;
 use yii\web\Response;
 use yii\filters\Cors;
@@ -15,14 +16,19 @@ class UsuarioController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
+         // CORS (para permitir frontend)
+        $behaviors['corsFilter'] = [
+            'class' => Cors::class,
+        ];
+
+        // JWT Auth
+        $behaviors['authenticator'] = [
+            'class' => JwtAuth::class,
+        ];
+        
         // Respuesta JSON
         $behaviors['contentNegotiator']['formats'] = [
             'application/json' => Response::FORMAT_JSON,
-        ];
-
-        // CORS (para permitir frontend)
-        $behaviors['corsFilter'] = [
-            'class' => Cors::class,
         ];
 
         return $behaviors;

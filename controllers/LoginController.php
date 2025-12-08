@@ -10,11 +10,10 @@ use yii\web\Response;
 
 class LoginController extends Controller
 {
+    public $enableCsrfValidation = false;
     public function behaviors()
     {
         $behaviors = parent::behaviors();
-
-        // Respuesta siempre JSON
         $behaviors['contentNegotiator']['formats'] = [
             'application/json' => Response::FORMAT_JSON,
         ];
@@ -24,9 +23,19 @@ class LoginController extends Controller
 
     public function actionIndex()
     {
+       Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
         $request = Yii::$app->request;
-        $correo = $request->post('correo');
-        $password = $request->post('contrasena');
+
+       // GET opcional para pruebas
+        $correo = $request->get('correo');
+        $password = $request->get('contrasena');
+
+        // POST JSON o form-data
+        if (!$correo || !$password) {
+            $correo = $request->post('correo');
+            $password = $request->post('contrasena');
+        }
 
         if (!$correo || !$password) {
             return ['error' => 'Correo y contraseña son obligatorios.'];
