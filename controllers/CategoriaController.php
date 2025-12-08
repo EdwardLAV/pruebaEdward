@@ -48,22 +48,4 @@ class CategoriaController extends ActiveController
 
         return ['status' => 'ok', 'nuevo_estado' => $categoria->estado];
     }
-
-    public function actionDelete($id)
-    {
-        $categoria = $this->modelClass::findOne($id);
-
-        if (!$categoria) {
-            return ['error' => 'Categoría no encontrada'];
-        }
-
-        if ($categoria->delete()) {
-            return [
-                'status' => 'ok',
-                'message' => "Categoría con ID {$id} eliminada correctamente"
-            ];
-        }
-
-        return ['error' => 'No se pudo eliminar la categoría'];
-    }
 }
