@@ -2,133 +2,51 @@
 
 namespace app\controllers;
 
+use yii\rest\ActiveController;
 use app\models\Usuario;
-use app\models\UsuarioSearch;
-use yii\web\Controller;
-use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
-/**
- * UsuarioController implements the CRUD actions for Usuario model.
- */
-class UsuarioController extends Controller
+class UsuarioController extends ActiveController
 {
-    /**
-     * @inheritDoc
-     */
+    public $modelClass = 'app\models\Usuario';
+
     public function behaviors()
     {
-        return array_merge(
-            parent::behaviors(),
-            [
-                'verbs' => [
-                    'class' => VerbFilter::className(),
-                    'actions' => [
-                        'delete' => ['POST'],
-                    ],
-                ],
-            ]
-        );
+        $behaviors = parent::behaviors();
+        // Asegurar salida JSON
+        $behaviors['contentNegotiator']['formats']['text/html'] = \yii\web\Response::FORMAT_JSON;
+        return $behaviors;
     }
 
-    /**
-     * Lists all Usuario models.
-     *
-     * @return string
-     */
-    public function actionIndex()
+    // Hasheo SHA256 automático al crear
+    public function beforeAction($action)
     {
-        $searchModel = new UsuarioSearch();
-        $dataProvider = $searchModel->search($this->request->queryParams);
-
-        return $this->render('index', [
-            'searchModel' => $searchModel,
-            'dataProvider' => $dataProvider,
-        ]);
-    }
-
-    /**
-     * Displays a single Usuario model.
-     * @param int $id ID
-     * @return string
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
-
-    /**
-     * Creates a new Usuario model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return string|\yii\web\Response
-     */
-    public function actionCreate()
-    {
-        $model = new Usuario();
-
-        if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
+        if ($action->id === 'create' || $action->id === 'update') {
+            $body = \Yii::$app->request->post();
+            if (isset($body['contrasena'])) {
+                $body['contrasena'] = hash('sha256', $body['contrasena']);
+                \Yii::$app->request->setBodyParams($body);
             }
-        } else {
-            $model->loadDefaultValues();
         }
-
-        return $this->render('create', [
-            'model' => $model,
-        ]);
+        return parent::beforeAction($action);
     }
 
-    /**
-     * Updates an existing Usuario model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $id ID
-     * @return string|\yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionUpdate($id)
+    // Actualizar solo estado
+    public function actionEstado($id)
     {
-        $model = $this->findModel($id);
+        $model = Usuario::findOne($id);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if (!$model) {
+            return [
+                'success' => false,
+                'message' => 'Usuario no encontrado',
+            ];
         }
 
-        return $this->render('update', [
-            'model' => $model,
-        ]);
-    }
+        $estado = \Yii::$app->request->post('estado');
 
-    /**
-     * Deletes an existing Usuario model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $id ID
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionDelete($id)
-    {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
-    }
-
-    /**
-     * Finds the Usuario model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $id ID
-     * @return Usuario the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel($id)
-    {
-        if (($model = Usuario::findOne(['id' => $id])) !== null) {
-            return $model;
-        }
-
-        throw new NotFoundHttpException('The requested page does not exist.');
+        $model->estado = $estado;
+        return $model->save()
+            ? ['success' => true, 'message' => 'Estado actualizado']
+            : ['success' => false, 'message' => 'Error al actualizar estado'];
     }
 }
