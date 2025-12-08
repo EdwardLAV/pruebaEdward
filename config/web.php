@@ -14,7 +14,7 @@ $config = [
     'components' => [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
-            'cookieValidationKey' => 'qOJzaGqygf2qdZDn9PN7d5i0eSU50j8Q',
+            'cookieValidationKey' => 'qOJzaGqygf2qdZDn9PN7d5i0eSU5j8Q',
             'parsers' => [
                 'application/json' => 'yii\web\JsonParser',
             ],
@@ -60,6 +60,8 @@ $config = [
             'showScriptName' => false,
             'enableStrictParsing' => false,
             'rules' => [
+                'POST login' => 'login/index',
+                'GET login'  => 'login/index',
                 ['class' => 'yii\rest\UrlRule', 'controller' => 'login', 'pluralize' => false],
                 ['class' => 'yii\rest\UrlRule', 'controller' => 'usuarios'],
                 ['class' => 'yii\rest\UrlRule', 'controller' => 'categorias'],
