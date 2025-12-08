@@ -15,14 +15,18 @@ $config = [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'qOJzaGqygf2qdZDn9PN7d5i0eSU50j8Q',
+            'parsers' => [
+                'application/json' => 'yii\web\JsonParser',
+            ],
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'identityClass' => 'app\models\User',
-            'enableAutoLogin' => true,
-        ],
+            'identityClass' => 'app\models\Usuario',  
+            'enableSession' => false, 
+            'loginUrl' => null,
+        ], 
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
@@ -42,19 +46,28 @@ $config = [
             ],
         ],
         'db' => $db,
+        'corsFilter' => [
+            'class' => \yii\filters\Cors::class,
+            'cors' => [
+                'Origin' => ['*'],
+                'Access-Control-Request-Method' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+                'Access-Control-Allow-Credentials' => false,
+                'Access-Control-Allow-Headers' => ['*'],
+            ],
+        ],
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'enableStrictParsing' => false,
             'rules' => [
+                ['class' => 'yii\rest\UrlRule', 'controller' => 'login', 'pluralize' => false],
+                ['class' => 'yii\rest\UrlRule', 'controller' => 'usuarios'],
+                ['class' => 'yii\rest\UrlRule', 'controller' => 'categorias'],
             ],
-        ],
-        'jwt' => [
-            'class' => 'app\components\JwtAuth',
-            'key' => '3f8d92hAj92kLm92nWq8273sjf82nLQp'
         ],
     ],
     'controllerMap' => [
+        'login' => 'app\controllers\LoginController',
         'categorias' => 'app\controllers\CategoriaController',
         'usuarios' => 'app\controllers\UsuarioController',
         ],
