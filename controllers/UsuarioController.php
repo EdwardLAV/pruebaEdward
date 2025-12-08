@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use yii\rest\Controller;
 use yii\web\Response;
+use app\components\JwtAuth;
 use app\models\Usuario;
 
 class UsuarioController extends Controller
@@ -12,6 +13,10 @@ class UsuarioController extends Controller
     public function behaviors()
     {
         $behaviors = parent::behaviors();
+        $behaviors['authenticator'] = [
+            'class' => JwtAuth::class,
+            'except' => [], // TODAS las rutas requieren token
+        ];
         $behaviors['contentNegotiator']['formats']['application/json'] = Response::FORMAT_JSON;
 
         return $behaviors;
