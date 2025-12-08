@@ -50,6 +50,11 @@ $config = [
             ],
         ],
     ],
+    'controllerMap' => [
+        'categorias' => 'app\controllers\CategoriaController',
+        'usuarios' => 'app\controllers\UsuarioController',
+        ],
+    'modules' => [],
     'params' => $params,
 ];
 
