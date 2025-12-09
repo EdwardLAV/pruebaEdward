@@ -24,7 +24,8 @@ $config = [
         ],
         'user' => [
             'identityClass' => 'app\models\Usuario',  
-            'enableSession' => false, 
+            'enableAutoLogin' => true,
+            'enableSession' => true,
             'loginUrl' => null,
         ], 
         'errorHandler' => [
@@ -60,6 +61,16 @@ $config = [
             'showScriptName' => false,
             'enableStrictParsing' => false,
             'rules' => [
+                'GET api/usuarios' => 'api/usuario/index',
+                'POST api/usuarios' => 'api/usuario/create',
+                'PUT api/usuarios/<id:\d+>' => 'api/usuario/update',
+                'DELETE api/usuarios/<id:\d+>' => 'api/usuario/delete',
+
+                'GET api/categorias' => 'api/categoria/index',
+                'POST api/categorias' => 'api/categoria/create',
+                'PUT api/categorias/<id:\d+>' => 'api/categoria/update',
+                'DELETE api/categorias/<id:\d+>' => 'api/categoria/delete',
+
                 'POST login' => 'login/index',
                 'GET login'  => 'login/index',
                 ['class' => 'yii\rest\UrlRule', 'controller' => 'login', 'pluralize' => false],
@@ -68,6 +79,7 @@ $config = [
             ],
         ],
     ],
+    'defaultRoute' => 'site/login',
     'controllerMap' => [
         'login' => 'app\controllers\LoginController',
         'categorias' => 'app\controllers\CategoriaController',
