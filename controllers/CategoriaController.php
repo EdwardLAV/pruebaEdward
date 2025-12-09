@@ -1,51 +1,87 @@
 <?php
-
 namespace app\controllers;
 
 use Yii;
-use app\components\JwtAuth;
-use yii\rest\ActiveController;
+use yii\web\Controller;
+use yii\data\ActiveDataProvider;
+use app\models\Categoria;
+use app\models\CategoriaSearch;
+use yii\filters\AccessControl;
 use yii\web\Response;
-use yii\filters\Cors;
 
-class CategoriaController extends ActiveController
+class CategoriaController extends Controller
 {
-    public $modelClass = 'app\models\Categoria';
-
     public function behaviors()
     {
-        $behaviors = parent::behaviors();
-
-        // CORS
-        $behaviors['corsFilter'] = [
-            'class' => Cors::class,
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
         ];
-
-        // JWT Auth
-        $behaviors['authenticator'] = [
-            'class' => JwtAuth::class,
-        ];
-
-         // Respuesta JSON
-        $behaviors['contentNegotiator']['formats'] = [
-            'application/json' => Response::FORMAT_JSON,
-        ];
-
-        return $behaviors;
     }
 
-    // Activar / desactivar
-    public function actionEstado($id)
+    public function actionIndex()
     {
-        $categoria = ($this->modelClass)::findOne($id);
+        $searchModel = new CategoriaSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        if (!$categoria) {
-            return ['error' => 'Categoría no encontrada'];
+        return $this->render('index', [
+            'searchModel'  => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    public function actionView($id)
+    {
+        return $this->render('view', [
+            'model' => $this->findModel($id),
+        ]);
+    }
+
+    public function actionCreate()
+    {
+        $model = new Categoria();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['index']);
         }
 
-        $categoria->estado = !$categoria->estado;
-        $categoria->save(false);
+        return $this->render('create', [
+            'model' => $model,
+        ]);
+    }
 
-        return ['status' => 'ok', 'nuevo_estado' => $categoria->estado];
+    public function actionUpdate($id)
+    {
+        $model = $this->findModel($id);
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            return $this->redirect(['index']);
+        }
+
+        return $this->render('update', [
+            'model' => $model,
+        ]);
+    }
+
+    public function actionDelete($id)
+    {
+        $this->findModel($id)->delete();
+        return $this->redirect(['index']);
+    }
+
+    protected function findModel($id)
+    {
+        if (($model = Categoria::findOne($id)) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('La categoría no existe.');
     }
 }

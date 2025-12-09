@@ -1,51 +1,90 @@
 <?php
-
 namespace app\controllers;
 
 use Yii;
-use app\components\JwtAuth;
-use yii\rest\ActiveController;
+use yii\web\Controller;
+use yii\data\ActiveDataProvider;
+use app\models\Usuario;
+use app\models\UsuarioSearch;
+use yii\filters\AccessControl;
 use yii\web\Response;
-use yii\filters\Cors;
 
-class UsuarioController extends ActiveController
+class UsuarioController extends Controller
 {
-    public $modelClass = 'app\models\Usuario';
-
     public function behaviors()
     {
-        $behaviors = parent::behaviors();
-
-         // CORS (para permitir frontend)
-        $behaviors['corsFilter'] = [
-            'class' => Cors::class,
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['@'], // solo usuarios logueados
+                    ],
+                ],
+            ],
         ];
-
-        // JWT Auth
-        $behaviors['authenticator'] = [
-            'class' => JwtAuth::class,
-        ];
-        
-        // Respuesta JSON
-        $behaviors['contentNegotiator']['formats'] = [
-            'application/json' => Response::FORMAT_JSON,
-        ];
-
-        return $behaviors;
     }
 
-    // Cambiar estado (activar/desactivar)
-    public function actionEstado($id)
+    public function actionIndex()
     {
-        $usuario = ($this->modelClass)::findOne($id);
+        $searchModel = new UsuarioSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        if (!$usuario) {
-            return ['error' => 'Usuario no encontrado'];
+        return $this->render('index', [
+            'searchModel'  => $searchModel,
+            'dataProvider' => $dataProvider,
+        ]);
+    }
+
+    public function actionView($id)
+    {
+        return $this->render('view', [
+            'model' => $this->findModel($id),
+        ]);
+    }
+
+    public function actionCreate()
+    {
+        $model = new Usuario();
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', '✅ Se ha creado el usuario exitosamente.');
+            return $this->redirect(['index']);
         }
 
-        $usuario->estado = !$usuario->estado;
-        $usuario->save(false);
+        return $this->render('create', [
+            'model' => $model,
+        ]);
+    }
 
-        return ['status' => 'ok', 'nuevo_estado' => $usuario->estado];
+    public function actionUpdate($id)
+    {
+        $model = $this->findModel($id);
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', '✅ Usuario actualizado correctamente.');
+            return $this->redirect(['index']);
+        }
+
+        return $this->render('update', [
+            'model' => $model,
+        ]);
+    }
+
+    public function actionDelete($id)
+    {
+        $this->findModel($id)->delete();
+        Yii::$app->session->setFlash('success', '✅ Usuario eliminado correctamente.');
+        return $this->redirect(['index']);
+    }
+
+    protected function findModel($id)
+    {
+        if (($model = Usuario::findOne($id)) !== null) {
+            return $model;
+        }
+
+        throw new NotFoundHttpException('El usuario no existe.');
     }
 }
