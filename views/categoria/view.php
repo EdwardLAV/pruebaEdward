@@ -1,40 +1,31 @@
 <?php
-
 use yii\helpers\Html;
-use yii\widgets\DetailView;
 
-/** @var yii\web\View $this */
-/** @var app\models\Categoria $model */
-
-$this->title = $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Categorias', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
-\yii\web\YiiAsset::register($this);
+$this->title = "Detalle de Categoría";
 ?>
-<div class="categoria-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
-    <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
-    </p>
-
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
-            'nombre',
-            'estado:boolean',
-            'created_at',
-            'updated_at',
-        ],
-    ]) ?>
-
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                <i class="bi bi-eye-fill"></i> Detalle de Categoría
+            </h4>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="fw-bold">Nombre:</label>
+                <p><?= Html::encode($model->nombre) ?></p>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+                <?= Html::a('<i class="bi bi-pencil-square"></i> Editar',
+                    ['update', 'id' => $model->id],
+                    ['class' => 'btn btn-warning']
+                ) ?>
+                <?= Html::a('<i class="bi bi-arrow-return-left"></i> Volver',
+                    ['index'],
+                    ['class' => 'btn btn-secondary']
+                ) ?>
+            </div>
+        </div>
+    </div>
 </div>
