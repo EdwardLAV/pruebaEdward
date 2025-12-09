@@ -49,6 +49,7 @@ class CategoriaController extends Controller
         $model = new Categoria();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', '✅ Se ha creado la categoria exitosamente.');
             return $this->redirect(['index']);
         }
 
@@ -62,6 +63,7 @@ class CategoriaController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->setFlash('success', '✅ Categoría actualizada correctamente.');
             return $this->redirect(['index']);
         }
 
@@ -73,6 +75,7 @@ class CategoriaController extends Controller
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
+        Yii::$app->session->setFlash('success', '✅ Categoría eliminada correctamente.');
         return $this->redirect(['index']);
     }
 
