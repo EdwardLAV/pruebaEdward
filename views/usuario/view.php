@@ -1,44 +1,41 @@
 <?php
-
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 
-/** @var yii\web\View $this */
-/** @var app\models\Usuario $model */
-
-$this->title = $model->id;
-$this->params['breadcrumbs'][] = ['label' => 'Usuarios', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $this->title;
-\yii\web\YiiAsset::register($this);
+$this->title = 'Detalles del Usuario';
 ?>
-<div class="usuario-view">
+<div class="usuario-view container mt-4">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="fw-bold"><?= Html::encode($this->title) ?></h1>
+        <div>
+            <?= Html::a('✏️ Editar', ['update', 'id'=>$model->id], ['class'=>'btn btn-warning btn-lg']) ?>
+            <?= Html::a('⬅️ Volver', ['index'], ['class'=>'btn btn-secondary btn-lg']) ?>
+        </div>
+    </div>
 
-    <p>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
-    </p>
+    <div class="card shadow-sm">
+        <div class="card-body">
 
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'id',
-            'nombre',
-            'apellido',
-            'edad',
-            'correo',
-            'contrasena',
-            'estado:boolean',
-            'created_at',
-            'updated_at',
-        ],
-    ]) ?>
+            <?= DetailView::widget([
+                'model' => $model,
+                'attributes' => [
+                    'id',
+                    'nombre',
+                    'apellido',
+                    'correo',
+                    'edad',
+                    [
+                        'attribute' => 'estado',
+                        'format' => 'raw',
+                        'value' => $model->estado 
+                            ? '<span class="badge bg-success">Activo</span>' 
+                            : '<span class="badge bg-danger">Inactivo</span>',
+                    ],
+                    'created_at',
+                ],
+            ]) ?>
 
+        </div>
+    </div>
 </div>

@@ -1,37 +1,42 @@
 <?php
-
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-
-/** @var yii\web\View $this */
-/** @var app\models\Usuario $model */
-/** @var yii\widgets\ActiveForm $form */
 ?>
 
-<div class="usuario-form">
+<div class="usuario-form container mt-4">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <div class="card shadow-sm">
+        <div class="card-body">
 
-    <?= $form->field($model, 'nombre')->textInput(['maxlength' => true]) ?>
+            <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'apellido')->textInput(['maxlength' => true]) ?>
+            <div class="row">
+                <div class="col-md-6">
+                    <?= $form->field($model, 'nombre')->textInput(['maxlength' => true, 'class'=>'form-control form-control-lg']) ?>
+                </div>
+                <div class="col-md-6">
+                    <?= $form->field($model, 'apellido')->textInput(['maxlength' => true, 'class'=>'form-control form-control-lg']) ?>
+                </div>
+            </div>
 
-    <?= $form->field($model, 'edad')->textInput() ?>
+            <?= $form->field($model, 'correo')->textInput(['maxlength' => true, 'class'=>'form-control form-control-lg']) ?>
 
-    <?= $form->field($model, 'correo')->textInput(['maxlength' => true]) ?>
+            <?= $form->field($model, 'edad')->input('number', ['class'=>'form-control form-control-lg']) ?>
 
-    <?= $form->field($model, 'contrasena')->textInput(['maxlength' => true]) ?>
+            <?= $form->field($model, 'estado')->dropDownList(
+                [1 => 'Activo', 0 => 'Inactivo'],
+                ['class' => 'form-select form-select-lg']
+            ) ?>
 
-    <?= $form->field($model, 'estado')->checkbox() ?>
+            <?= $form->field($model, 'contrasena')->passwordInput(['maxlength' => true, 'class'=>'form-control form-control-lg']) ?>
 
-    <?= $form->field($model, 'created_at')->textInput() ?>
+            <div class="form-group mt-4">
+                <?= Html::submitButton('<i class="bi bi-floppy"></i> Guardar', ['class' => 'btn btn-primary btn-lg px-4']) ?>
+            </div>
 
-    <?= $form->field($model, 'updated_at')->textInput() ?>
+            <?php ActiveForm::end(); ?>
 
-    <div class="form-group">
-        <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
+        </div>
     </div>
-
-    <?php ActiveForm::end(); ?>
 
 </div>
