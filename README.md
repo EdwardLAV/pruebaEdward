@@ -50,20 +50,20 @@ composer install
 
 ### 3️⃣ Configurar la base de datos
 
-Edita:
+Edite:
 
 ```
 config/db.php
 ```
 
-y coloca tus credenciales:
+y coloque sus credenciales:
 
 ```php
 return [
     'class' => 'yii\db\Connection',
     'dsn' => 'mysql:host=localhost;dbname=TU_BD',
     'username' => 'TU_USUARIO',
-    'password' => 'TU_PASSWORD',
+    'password' => 'TU_CONTRASEÑA',
     'charset' => 'utf8',
 ];
 ```
@@ -111,7 +111,7 @@ http://localhost:8080/
 /site/login
 ```
 
-2. Usar un usuario válido de tu base de datos:
+2. Use un usuario válido de la base de datos:
 
 | correo | contraseña |
 |--------|------------|
